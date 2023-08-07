@@ -11012,7 +11012,6 @@ static void ImGui::NavApplyItemToResult(ImGuiNavItemData* result)
     result->FocusScopeId = g.CurrentFocusScopeId;
     result->InFlags = g.LastItemData.InFlags;
     result->RectRel = WindowRectAbsToRel(window, g.LastItemData.NavRect);
-    result->HasSelectionData = (g.NextItemData.Flags & ImGuiNextItemDataFlags_HasSelectionData) != 0; // FIXME: Bizarre but valid we are calling NavApplyItemToResult() before clearing the NextItemData
 }
 
 // True when current work location may be scrolled horizontally when moving left / right.
@@ -11555,7 +11554,7 @@ void ImGui::NavInitRequestApplyResult()
         g.NavJustMovedToId = result->ID;
         g.NavJustMovedToFocusScopeId = result->FocusScopeId;
         g.NavJustMovedToKeyMods = 0;
-        g.NavJustMovedToHasSelectionData = result->HasSelectionData;
+        g.NavJustMovedToHasSelectionData = (result->InFlags & ImGuiItemFlags_HasSelectionUserData) != 0;
     }
 
     // Apply result from previous navigation init request (will typically select the first item, unless SetItemDefaultFocus() has been called)
@@ -11806,7 +11805,7 @@ void ImGui::NavMoveRequestApplyResult()
         g.NavJustMovedToId = result->ID;
         g.NavJustMovedToFocusScopeId = result->FocusScopeId;
         g.NavJustMovedToKeyMods = g.NavMoveKeyMods;
-        g.NavJustMovedToHasSelectionData = result->HasSelectionData;
+        g.NavJustMovedToHasSelectionData = (result->InFlags & ImGuiItemFlags_HasSelectionUserData) != 0;
     }
 
     // Apply new NavID/Focus
