@@ -2994,6 +2994,12 @@ static bool ImGuiListClipper_StepInternal(ImGuiListClipper* clipper)
     return false;
 }
 
+static void ImGuiListClipper_UpdateMultiSelectRangeSrcPassedBy(ImGuiMultiSelectTempData* ms, int index_reached)
+{
+    if (ms->BeginIO.RangeSrcItemIdx >= 0 && index_reached > ms->BeginIO.RangeSrcItemIdx)
+        ms->RangeSrcPassedBy = true;
+}
+
 bool ImGuiListClipper::Step()
 {
     ImGuiContext& g = *Ctx;
@@ -3005,6 +3011,12 @@ bool ImGuiListClipper::Step()
         IMGUI_DEBUG_LOG_CLIPPER("Clipper: Step(): inside frozen table row.\n");
     if (need_items_height && ItemsHeight > 0.0f)
         IMGUI_DEBUG_LOG_CLIPPER("Clipper: Step(): computed ItemsHeight: %.2f.\n", ItemsHeight);
+
+    // Automatically set RangeSrcPassedBy data for MultiSelect system
+    if (ImGuiMultiSelectTempData* ms = g.CurrentMultiSelect)
+        if (ms->Storage->Window == g.CurrentWindow && ms->RangeSrcPassedBy == false)
+            ImGuiListClipper_UpdateMultiSelectRangeSrcPassedBy(ms, ret ? DisplayStart : ItemsCount);
+
     if (ret)
     {
         IMGUI_DEBUG_LOG_CLIPPER("Clipper: Step(): display %d to %d.\n", DisplayStart, DisplayEnd);
@@ -3014,6 +3026,7 @@ bool ImGuiListClipper::Step()
         IMGUI_DEBUG_LOG_CLIPPER("Clipper: Step(): End.\n");
         End();
     }
+
     return ret;
 }
 
